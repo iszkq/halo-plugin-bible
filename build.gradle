@@ -1,0 +1,166 @@
+plugins {
+    id 'java'
+    id "io.freefair.lombok" version "8.13"
+    id "run.halo.plugin.devtools" version "0.6.1"
+}
+
+group 'run.halo.bible'
+def haloPlatformVersion = '2.22.5'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = uri('https://s01.oss.sonatype.org/content/repositories/releases/')
+    }
+}
+
+dependencies {
+    implementation platform("run.halo.tools.platform:plugin:${haloPlatformVersion}")
+    compileOnly 'run.halo.app:api'
+    compileOnly 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'org.apache.commons:commons-csv:1.11.0'
+
+    testImplementation 'run.halo.app:api'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.release = 21
+}
+
+// 由 Gradle 自动执行前端构建；@halo-dev/ui-plugin-bundler-kit 输出到 ui/build/dist
+def uiDir = layout.projectDirectory.dir('ui').asFile
+def pluginVersion = project.version.toString()
+
+tasks.register('syncUiPackageVersion') {
+    description = '同步 ui/package.json 中的版本号为 Gradle 主版本号'
+    group = 'build'
+    doLast {
+        def packageJson = new File(uiDir, 'package.json')
+        if (!packageJson.exists()) {
+            throw new GradleException('未找到 ui/package.json，无法同步前端版本号')
+        }
+        def source = packageJson.getText('UTF-8')
+        def updated = source.replaceFirst(/"version"\s*:\s*"[^"]+"/, "\"version\": \"${pluginVersion}\"")
+        if (source != updated) {
+            packageJson.write(updated, 'UTF-8')
+        }
+    }
+}
+
+tasks.register('buildUi', Exec) {
+    description = '在 ui 目录执行 npm install 与 npm run build（每次打包都会执行，确保 JAR 内为最新前端）'
+    group = 'build'
+    dependsOn tasks.named('syncUiPackageVersion')
+    workingDir = uiDir
+    if (System.getProperty('os.name').toLowerCase().contains('windows')) {
+        commandLine 'cmd', '/c', 'npm install && npm run build && npm run build:public'
+    } else {
+        commandLine 'sh', '-c', 'npm install && npm run build && npm run build:public'
+    }
+}
+
+tasks.register('checkUiBuild') {
+    dependsOn tasks.named('buildUi')
+    doLast {
+        def distDir = layout.projectDirectory.dir('ui/build/dist').asFile
+        if (!distDir.exists()) {
+            throw new GradleException(
+                '未检测到 ui/build/dist。请先执行：cd ui && npm install && npm run build，再执行 Gradle 打包。'
+            )
+        }
+        def hasJs = distDir.listFiles()?.any { it.name.endsWith('.js') }
+        if (!hasJs) {
+            throw new GradleException(
+                'ui/build/dist 下没有 .js 文件。请先执行：cd ui && npm run build，再执行 Gradle 打包。'
+            )
+        }
+    }
+}
+
+tasks.register('processUiResources', Copy) {
+    dependsOn tasks.named('checkUiBuild')
+    from layout.projectDirectory.dir('ui/build/dist')
+    into layout.buildDirectory.dir('resources/main/console')
+    shouldRunAfter tasks.named('processResources')
+}
+
+tasks.register('checkPublicUiBuild') {
+    dependsOn tasks.named('buildUi')
+    doLast {
+        def publicDir = layout.projectDirectory.dir('ui/build/public-bible-editor').asFile
+        if (!publicDir.exists()) {
+            throw new GradleException('Missing ui/build/public-bible-editor. Run npm run build:public first.')
+        }
+        def editorBundle = new File(publicDir, 'theme-bible-note-editor.js')
+        if (!editorBundle.exists()) {
+            throw new GradleException('Missing theme-bible-note-editor.js. Run npm run build:public first.')
+        }
+    }
+}
+
+tasks.register('processPublicBibleAssets', Copy) {
+    dependsOn tasks.named('checkPublicUiBuild')
+    from layout.projectDirectory.dir('ui/build/public-bible-editor')
+    include 'theme-bible-note-editor.js'
+    into layout.buildDirectory.dir('resources/main/bible')
+    shouldRunAfter tasks.named('processResources')
+}
+
+tasks.named('classes') {
+    dependsOn tasks.named('processUiResources')
+    dependsOn tasks.named('processPublicBibleAssets')
+}
+
+tasks.named('processResources') {
+    filteringCharset = 'UTF-8'
+    filesMatching('bible/theme-bible-page.html') {
+        expand(pluginVersion: pluginVersion)
+    }
+    filesMatching('plugin.yaml') {
+        expand(pluginVersion: pluginVersion)
+    }
+}
+
+// 确保 bible.csv 被打进 JAR（processResources 会复制 src/main/resources，此处仅做校验）
+tasks.register('checkBibleCsv') {
+    dependsOn tasks.named('processResources')
+    doLast {
+        def csv = layout.buildDirectory.file('resources/main/bible/bible.csv').get().asFile
+        if (!csv.exists()) {
+            throw new GradleException('bible.csv 未找到于 build/resources/main/bible/，请确认 src/main/resources/bible/bible.csv 存在')
+        }
+    }
+}
+tasks.named('classes') {
+    dependsOn tasks.named('checkBibleCsv')
+}
+
+tasks.withType(Jar).configureEach {
+    dependsOn tasks.named('checkBibleCsv')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes('Implementation-Version': pluginVersion)
+    }
+    from(layout.buildDirectory.dir('resources/main/bible')) {
+        into 'bible'
+        include '**/*'
+    }
+}
+
+halo {
+    version = haloPlatformVersion
+}

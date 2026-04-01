@@ -1,0 +1,10 @@
+# 将 JAR 包内 bible 目录暴露为静态资源，外观-圣经等无需外链即可使用
+# 请求 /plugins/bible/assets/bible.csv 会映射到 directory bible 下的 bible.csv
+apiVersion: plugin.halo.run/v1alpha1
+kind: ReverseProxy
+metadata:
+  name: bible-data-reverse-proxy
+rules:
+  - path: /**
+    file:
+      directory: bible

@@ -1,0 +1,9 @@
+apiVersion: plugin.halo.run/v1alpha1
+kind: ExtensionDefinition
+metadata:
+  name: bible-theme-footer-processor
+spec:
+  extensionPointName: template-footer-processor
+  className: run.halo.bible.theme.BibleThemeFooterProcessor
+  displayName: "Bible Floating Entry"
+  description: "Injects the floating bible search panel into theme pages"

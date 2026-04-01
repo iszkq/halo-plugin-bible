@@ -1,0 +1,20 @@
+apiVersion: plugin.halo.run/v1alpha1
+kind: Plugin
+metadata:
+  name: bible
+spec:
+  enabled: true
+  requires: ">=2.22.5"
+  version: "${pluginVersion}"
+  logo: login.png
+  author:
+    name: "\u606A\u52E4"
+    website: https://github.com/iszkq
+  displayName: "\u5723\u7ECF"
+  description: "\u5728\u7CFB\u7EDF\u5DE5\u5177\u4E2D\u6D4F\u89C8\u548C\u7BA1\u7406\u5723\u7ECF\u7ECF\u6587\uFF0C\u652F\u6301\u591A\u5173\u952E\u8BCD\u641C\u7D22\u3001\u7F16\u8F91\u5668\u63D2\u5165\u4E0E\u4E3B\u9898\u60AC\u6D6E\u5165\u53E3\u3002"
+  homepage: https://github.com/iszkq/halo-plugin-bible
+  repo: https://github.com/iszkq/halo-plugin-bible
+  issues: https://github.com/iszkq/halo-plugin-bible/issues
+  license:
+    - name: "MIT"
+      url: "https://opensource.org/licenses/MIT"
