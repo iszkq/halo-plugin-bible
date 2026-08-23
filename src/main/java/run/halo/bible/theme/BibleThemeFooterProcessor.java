@@ -10,6 +10,7 @@ import org.thymeleaf.model.IModel;
 import org.thymeleaf.processor.element.IElementTagStructureHandler;
 import reactor.core.publisher.Mono;
 import run.halo.app.theme.dialect.TemplateFooterProcessor;
+import run.halo.app.plugin.PluginContext;
 import run.halo.bible.service.CsvBibleService;
 
 @Component
@@ -17,6 +18,7 @@ import run.halo.bible.service.CsvBibleService;
 public class BibleThemeFooterProcessor implements TemplateFooterProcessor {
 
     private final CsvBibleService csvBibleService;
+    private final PluginContext pluginContext;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -29,12 +31,13 @@ public class BibleThemeFooterProcessor implements TemplateFooterProcessor {
         var payload = csvBibleService.getThemePayload();
         var factory = context.getModelFactory();
         var assetVersion = resolveAssetVersion();
-        model.add(factory.createText("<link rel=\"stylesheet\" href=\"/plugins/bible/assets/theme-bible-widget.css?v=" + assetVersion + "\">"));
+        var assetBase = "/plugins/" + pluginContext.getName() + "/assets";
+        model.add(factory.createText("<link rel=\"stylesheet\" href=\"" + assetBase + "/theme-bible-widget.css?v=" + assetVersion + "\">"));
         if (!payload.getSettings().isFloatEnabled()) {
             return Mono.empty();
         }
         model.add(factory.createText("<script>window.__BIBLE_PLUGIN_THEME__=" + toJson(payload) + ";</script>"));
-        model.add(factory.createText("<script defer src=\"/plugins/bible/assets/theme-bible-widget.js?v=" + assetVersion + "\"></script>"));
+        model.add(factory.createText("<script defer src=\"" + assetBase + "/theme-bible-widget.js?v=" + assetVersion + "\"></script>"));
         return Mono.empty();
     }
 

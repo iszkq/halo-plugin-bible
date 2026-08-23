@@ -1,6 +1,6 @@
 {
   "name": "halo-plugin-bible-ui",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "type": "module",
   "scripts": {
     "build": "npm run build-only",

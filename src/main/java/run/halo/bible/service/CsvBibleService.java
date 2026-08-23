@@ -30,6 +30,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import run.halo.app.plugin.PluginContext;
 import run.halo.bible.dto.BibleDiagnosticsDto;
 import run.halo.bible.dto.BibleEditsDto;
 import run.halo.bible.dto.BibleSetting;
@@ -54,10 +55,8 @@ public class CsvBibleService {
     };
     private static final String[] HEADERS = {"约名", "大类", "卷名", "卷数", "章数", "节数", "内容"};
     private static final String CONFIG_FILE = "config.json";
-    private static final String BUILTIN_CSV_PATH = "/plugins/bible/assets/bible.csv";
-    private static final String DEFAULT_ICON_URL = "/plugins/bible/assets/login.png";
-
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final PluginContext pluginContext;
 
     private volatile List<BibleVerseDto> verses = new ArrayList<>();
     private volatile BibleEditsDto edits = new BibleEditsDto();
@@ -650,9 +649,16 @@ public class CsvBibleService {
         BibleThemePayload payload = new BibleThemePayload();
         payload.setSettings(getSettings());
         payload.setEdits(copyEdits());
-        payload.setBuiltinCsvPath(BUILTIN_CSV_PATH);
-        payload.setDefaultIconUrl(DEFAULT_ICON_URL);
+        payload.setBuiltinCsvPath(pluginAssetPath("bible.csv"));
+        payload.setDefaultIconUrl(pluginAssetPath("login.png"));
         return payload;
+    }
+
+    private String pluginAssetPath(String filename) {
+        String pluginId = pluginContext != null && pluginContext.getName() != null
+            ? pluginContext.getName()
+            : "bible";
+        return "/plugins/" + pluginId + "/assets/" + filename;
     }
 
     public BibleEditsDto copyEdits() {

@@ -1,11 +1,56 @@
-# 将 JAR 包内 bible 目录暴露为静态资源，外观-圣经等无需外链即可使用
-# 请求 /plugins/bible/assets/bible/... 会映射到 directory bible 下的对应资源。
-# 不要使用 /**，否则会拦截 console/ui-plugin.json 和 ESM 入口文件。
+# 将 JAR 包内 bible 目录中的公开资源暴露为静态资源。
+# ReverseProxy 的 URL 前缀由 Halo 自动加上：
+# /plugins/<实际插件 ID>/assets。这里使用精确路径，避免匹配 console 下的前端入口。
 apiVersion: plugin.halo.run/v1alpha1
 kind: ReverseProxy
 metadata:
   name: bible-data-reverse-proxy
 rules:
-  - path: /bible/**
+  - path: /bible.csv
     file:
       directory: bible
+      filename: bible.csv
+  - path: /login.png
+    file:
+      directory: bible
+      filename: login.png
+  - path: /icon-512.png
+    file:
+      directory: bible
+      filename: icon-512.png
+  - path: /icon-192.png
+    file:
+      directory: bible
+      filename: icon-192.png
+  - path: /manifest.webmanifest
+    file:
+      directory: bible
+      filename: manifest.webmanifest
+  - path: /theme-bible-page.html
+    file:
+      directory: bible
+      filename: theme-bible-page.html
+  - path: /theme-bible-page.js
+    file:
+      directory: bible
+      filename: theme-bible-page.js
+  - path: /theme-bible-page.css
+    file:
+      directory: bible
+      filename: theme-bible-page.css
+  - path: /theme-bible-widget.js
+    file:
+      directory: bible
+      filename: theme-bible-widget.js
+  - path: /theme-bible-widget.css
+    file:
+      directory: bible
+      filename: theme-bible-widget.css
+  - path: /theme-bible-sw.js
+    file:
+      directory: bible
+      filename: theme-bible-sw.js
+  - path: /theme-bible-note-editor.js
+    file:
+      directory: bible
+      filename: theme-bible-note-editor.js

@@ -1,11 +1,14 @@
 import { getBookAbbrev } from './bibleOrder'
+import { getPluginAssetPath } from './pluginRuntime'
 
 const BOOK_LABEL_OVERRIDES: Record<string, string> = {
   '\u5217\u738b\u7EAA\u4E0A': '\u738B\u4E0A',
   '\u5217\u738B\u7EAA\u4E0B': '\u738B\u4E0B',
 }
 
-export const PUBLIC_BIBLE_PAGE_PATH = '/plugins/bible/assets/theme-bible-page.html'
+export function getPublicBiblePagePath(): string {
+  return getPluginAssetPath('theme-bible-page.html')
+}
 
 export interface VerseLike {
   bookName?: string

@@ -493,7 +493,7 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from
 import { clearLoadCache, createVerse, deleteVerse, loadBibleData, searchVerses, updateVerse, type Verse } from '../api/bibleData'
 import { getOrderedBookNames, highlightKeyword, isNewCovenantLabel, sortVersesByBibleOrder } from '../api/bibleOrder'
 import {
-  PUBLIC_BIBLE_PAGE_PATH,
+  getPublicBiblePagePath,
   buildPaginationItems,
   copyText,
   formatBookDisplayName,
@@ -545,7 +545,7 @@ const focusedVerseId = ref('')
 const contentSectionRef = ref<HTMLElement | null>(null)
 const verseTopRef = ref<HTMLElement | null>(null)
 const selectedMap = ref<Map<string, Verse>>(new Map())
-const publicPageUrl = PUBLIC_BIBLE_PAGE_PATH
+const publicPageUrl = getPublicBiblePagePath()
 let focusVerseTimer = 0
 
 const editorVisible = ref(false)
