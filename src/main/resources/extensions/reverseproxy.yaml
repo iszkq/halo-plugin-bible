@@ -1,10 +1,11 @@
 # 将 JAR 包内 bible 目录暴露为静态资源，外观-圣经等无需外链即可使用
-# 请求 /plugins/bible/assets/bible.csv 会映射到 directory bible 下的 bible.csv
+# 请求 /plugins/bible/assets/bible/... 会映射到 directory bible 下的对应资源。
+# 不要使用 /**，否则会拦截 console/ui-plugin.json 和 ESM 入口文件。
 apiVersion: plugin.halo.run/v1alpha1
 kind: ReverseProxy
 metadata:
   name: bible-data-reverse-proxy
 rules:
-  - path: /**
+  - path: /bible/**
     file:
       directory: bible
