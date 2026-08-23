@@ -6,7 +6,7 @@ import BibleToolView from './views/BibleToolView.vue'
 import BibleInsertModalRoot from './components/BibleInsertModalRoot.vue'
 import IconBook from './components/IconBook.vue'
 import { BibleEditorExtension } from './extensions/BibleEditorExtension'
-import bibleConsoleCss from './styles/bible-console.css?raw'
+import './styles/bible-console.css'
 
 function ensureStyleTag(id: string, css: string) {
   if (typeof document === 'undefined' || document.getElementById(id)) {
@@ -71,7 +71,6 @@ if (typeof document !== 'undefined') {
       }
     `
   )
-  ensureStyleTag('bible-plugin-console-styles', bibleConsoleCss)
   setTimeout(() => {
     if (!document.getElementById('bible-insert-modal-root')) {
       const root = document.createElement('div')

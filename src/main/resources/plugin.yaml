@@ -4,7 +4,8 @@ metadata:
   name: bible
 spec:
   enabled: true
-  requires: ">=2.22.5"
+  # The plugin is compiled and tested against Halo 2.26.0 APIs.
+  requires: ">=2.26.0"
   version: "${pluginVersion}"
   logo: login.png
   author:

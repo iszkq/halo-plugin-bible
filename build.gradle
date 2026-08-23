@@ -5,7 +5,10 @@ plugins {
 }
 
 group 'run.halo.bible'
-def haloPlatformVersion = '2.22.5'
+// Build and test against the current Halo release. Keep this in sync with the
+// console package versions in ui/package.json and the minimum version in
+// src/main/resources/plugin.yaml.
+def haloPlatformVersion = '2.26.0'
 
 repositories {
     mavenCentral()
@@ -88,6 +91,12 @@ tasks.register('checkUiBuild') {
                 'ui/build/dist 下没有 .js 文件。请先执行：cd ui && npm run build，再执行 Gradle 打包。'
             )
         }
+        def styleFile = new File(distDir, 'style.css')
+        if (!styleFile.isFile() || styleFile.length() == 0) {
+            throw new GradleException(
+                'ui/build/dist 下缺少有效的 style.css。插件控制台资源必须包含 console/style.css。'
+            )
+        }
     }
 }
 
@@ -159,6 +168,27 @@ tasks.withType(Jar).configureEach {
         into 'bible'
         include '**/*'
     }
+}
+
+// Verify the final artifact, not only the intermediate frontend directory.
+// This catches packaging regressions before a JAR is published.
+tasks.register('checkJarUiResources') {
+    dependsOn tasks.named('jar')
+    doLast {
+        def jarFile = tasks.named('jar').get().archiveFile.get().asFile
+        def hasStyle = zipTree(jarFile).matching {
+            include 'console/style.css'
+        }.files.any { it.length() > 0 }
+        if (!hasStyle) {
+            throw new GradleException(
+                "${jarFile.name} 缺少有效的 console/style.css，禁止发布。"
+            )
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('checkJarUiResources')
 }
 
 halo {
