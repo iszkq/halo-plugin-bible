@@ -91,10 +91,10 @@ tasks.register('checkUiBuild') {
                 'ui/build/dist 下没有 .js 文件。请先执行：cd ui && npm run build，再执行 Gradle 打包。'
             )
         }
-        def styleFile = new File(distDir, 'style.css')
-        if (!styleFile.isFile() || styleFile.length() == 0) {
+        def manifestFile = new File(distDir, 'ui-plugin.json')
+        if (!manifestFile.isFile() || manifestFile.length() == 0) {
             throw new GradleException(
-                'ui/build/dist 下缺少有效的 style.css。插件控制台资源必须包含 console/style.css。'
+                'ui/build/dist 下缺少 ui-plugin.json。Halo 2.26+ 的 UI 插件必须包含 ESM 清单。'
             )
         }
     }
@@ -183,12 +183,12 @@ tasks.register('checkJarUiResources') {
     dependsOn tasks.named('jar')
     doLast {
         def jarFile = tasks.named('jar').get().archiveFile.get().asFile
-        def hasStyle = zipTree(jarFile).matching {
-            include 'console/style.css'
+        def hasManifest = zipTree(jarFile).matching {
+            include 'console/ui-plugin.json'
         }.files.any { it.length() > 0 }
-        if (!hasStyle) {
+        if (!hasManifest) {
             throw new GradleException(
-                "${jarFile.name} 缺少有效的 console/style.css，禁止发布。"
+                "${jarFile.name} 缺少有效的 console/ui-plugin.json，禁止发布。"
             )
         }
     }
