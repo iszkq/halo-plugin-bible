@@ -7,7 +7,7 @@
 - 文章编辑器扩展：在编辑器中搜索并插入经文，支持多关键词搜索。
 - 前台主题悬浮入口：可在首页、文章页或指定路径显示，支持搜索与按卷章浏览。
 
-当前项目以 `Halo 2.26.0` 插件平台和控制台依赖进行构建，使用 Halo 2.26+ 官方 ESM UI 插件打包器，并在打包阶段检查 `console/ui-plugin.json` 是否存在，避免后台样式资源加载失败。后续 Halo 升级时，应同步更新 `build.gradle`、`plugin.yaml` 和 `ui/package.json` 的版本，并重新运行构建检查。
+当前项目以 `Halo 2.26.0` 插件平台和控制台依赖进行构建，使用兼容 Halo 2.x 的 IIFE UI 插件格式，固定输出 `console/main.js` 和 `console/style.css`，并在打包阶段检查这两个文件是否存在，避免后台资源加载失败。后续 Halo 升级时，应同步更新 `build.gradle`、`plugin.yaml` 和 `ui/package.json` 的版本，并重新运行构建检查。
 
 ## 当前结构
 
