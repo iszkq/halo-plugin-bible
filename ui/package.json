@@ -1,6 +1,6 @@
 {
   "name": "halo-plugin-bible-ui",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "type": "module",
   "scripts": {
     "build": "npm run build-only",
@@ -14,7 +14,8 @@
     "@halo-dev/components": "2.26.0",
     "@halo-dev/console-shared": "2.21.0",
     "@tiptap/core": "2.10.0",
-    "axios": "1.7.2",
+    "axios": "1.16.0",
+    "vue-router": "5.1.0",
     "vue": "3.5.17"
   },
   "devDependencies": {

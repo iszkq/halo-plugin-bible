@@ -29,7 +29,7 @@ jobs:
       - name: Install UI dependencies and build
         run: |
           cd ui
-          npm install --legacy-peer-deps
+          npm install --legacy-peer-deps --force
           npm run build
         env:
           CI: true
