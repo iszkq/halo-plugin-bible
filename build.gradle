@@ -159,6 +159,9 @@ tasks.named('classes') {
 }
 
 tasks.withType(Jar).configureEach {
+    // Explicitly package the console bundle at the path Halo's plugin UI
+    // provider serves: /plugins/bible/assets/console/*.
+    dependsOn tasks.named('processUiResources')
     dependsOn tasks.named('checkBibleCsv')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
@@ -166,6 +169,10 @@ tasks.withType(Jar).configureEach {
     }
     from(layout.buildDirectory.dir('resources/main/bible')) {
         into 'bible'
+        include '**/*'
+    }
+    from(layout.buildDirectory.dir('resources/main/console')) {
+        into 'console'
         include '**/*'
     }
 }
