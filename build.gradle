@@ -177,6 +177,13 @@ tasks.withType(Jar).configureEach {
         into 'console'
         include '**/*'
     }
+    // Also package directly from the frontend output. This avoids a Gradle
+    // task-order race where processResources could clean the intermediate
+    // directory after processUiResources copied the bundle.
+    from(layout.projectDirectory.dir('ui/build/dist')) {
+        into 'console'
+        include 'main.js', 'style.css'
+    }
 }
 
 // Verify the final artifact, not only the intermediate frontend directory.
